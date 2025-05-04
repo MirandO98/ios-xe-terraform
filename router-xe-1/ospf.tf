@@ -1,31 +1,42 @@
-resource "iosxe_interface_ospf" "example" {
-  type                             = "Loopback"
-  name                             = "1"
-  cost                             = locals.ospf_confg.router-1.cost
-  dead_interval                    = locals.ospf_confg.router-1.dead_interval
-  hello_interval                   = locals.ospf_confg.router-1.hello_interval
-  mtu_ignore                       = var.mtu_ignore 
-  network_type_broadcast           = var.network_type_broadcast
-  network_type_non_broadcast       = var.network_type_non_broadcast 
-  network_type_point_to_multipoint = var.network_type_point_to_multipoint 
-  network_type_point_to_point      = true
-  priority                         = locals.ospf_confg.priority
-  ttl_security_hops                = 2
-  process_ids = [
-    {
-      id = var.id
-      areas = [
-        {
-          area_id = locals.ospf_confg.area_id
+resource "iosxe_interface_ospf" "ospf_interfaces" {
+  for_each = local.ospf_configs
+  
+
+  type                             = each.value.type
+  name                             = each.value.name
+  cost                             = each.value.cost
+  dead_interval                    = each.value.dead_interval
+  hello_interval                   = each.value.hello_interval
+  mtu_ignore                       = each.value.mtu_ignore
+  network_type_broadcast           = each.value.network_type_broadcast
+  network_type_non_broadcast       = each.value.network_type_non_broadcast
+  network_type_point_to_multipoint = each.value.network_type_point_to_multipoint
+  network_type_point_to_point      = each.value.network_type_point_to_point
+  priority                         = each.value.priority
+  ttl_security_hops                = each.value.ttl_security_hops
+  
+
+  dynamic "process_id" {
+    for_each = each.value.process_ids
+    content {
+      id = process_id.value.id
+      
+      dynamic "area" {
+        for_each = process_id.value.areas
+        content {
+          area_id = area.value.area_id
         }
-      ]
+      }
     }
-  ]
-  message_digest_keys = [
-    {
-      id            = var.id
-      md5_auth_key  = var.md5_auth_key
-      md5_auth_type = var.md5_auth_type
+  }
+  
+ 
+  dynamic "message_digest_key" {
+    for_each = each.value.message_digest_keys
+    content {
+      id            = message_digest_key.value.id
+      md5_auth_key  = message_digest_key.value.md5_auth_key
+      md5_auth_type = message_digest_key.value.md5_auth_type
     }
-  ]
+  }
 }
