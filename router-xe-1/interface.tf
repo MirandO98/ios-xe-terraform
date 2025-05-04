@@ -11,7 +11,7 @@ resource "iosxe_interface_ethernet" "interfaces" {
   ipv4_address_mask = local.interfaces.gigabit_ethernet.ipv4_address_mask
 }
 
-# loopback
+
 resource "iosxe_interface_loopback" "loopback" {
   name              = local.interfaces.loopback.name
   description       = local.interfaces.loopback.description
