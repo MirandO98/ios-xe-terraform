@@ -16,27 +16,17 @@ resource "iosxe_interface_ospf" "ospf_interfaces" {
   ttl_security_hops                = each.value.ttl_security_hops
   
 
-  dynamic "process_id" {
-    for_each = each.value.process_ids
-    content {
-      id = process_id.value.id
-      
-      dynamic "area" {
-        for_each = process_id.value.areas
-        content {
-          area_id = area.value.area_id
-        }
-      }
-    }
-  }
+  process_ids = [for process_id in each.value.process_ids : {
+    id      = process_id.id
+    areas   = [for area in process_id.areas : { area_id = area.area_id }]
+  }]
   
  
-  dynamic "message_digest_key" {
-    for_each = each.value.message_digest_keys
-    content {
-      id            = message_digest_key.value.id
-      md5_auth_key  = message_digest_key.value.md5_auth_key
-      md5_auth_type = message_digest_key.value.md5_auth_type
+  message_digest_keys = [
+    for key in each.value.message_digest_keys : {
+      id            = key.id
+      md5_auth_key  = key.md5_auth_key
+      md5_auth_type = key.md5_auth_type
     }
-  }
+  ]
 }
