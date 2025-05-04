@@ -78,3 +78,9 @@ variable "region" {
   type        = string
   description = "AWS region for S3 backend"
 }
+
+variable "bucket" {
+  type        = string
+  description = "S3 bucket for Terraform state"
+  
+}
